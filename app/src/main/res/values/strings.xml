@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ConvertImage</string>
+    <string name="open">Открыть</string>
+    <string name="convert_png">Преобразовать в png</string>
+    <string name="running_convert">Выполняется конвертация</string>
+    <string name="cancel">Отменить</string>
+    <string name="completed">Завершено</string>
+    <string name="error">Ошибка</string>
+</resources>
