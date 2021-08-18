@@ -7,12 +7,12 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 
 class ImageModel : ImageMaker {
     private var isOpened = false
     private lateinit var path: String
     private lateinit var image: Bitmap
+    private var convertor: Convertor? = null
 
     override fun open(path: String) = Single.fromCallable<Bitmap> {
         this.path = path
@@ -25,17 +25,14 @@ class ImageModel : ImageMaker {
     }.subscribeOn(Schedulers.io())
 
     override fun convert() = Completable.create { emitter ->
-        try {
-            if (!isOpened)
-                throw Exception("Image is not open")
-            val new_path = path.substring(0, path.lastIndexOf(".")) + ".png"
-            val fos = FileOutputStream(File(new_path))
-            image.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            fos.close()
-            emitter.onComplete()
-        } catch (e: Exception) {
-            emitter.onError(e)
-        }
-    }.subscribeOn(Schedulers.io())
+        if (!isOpened)
+            emitter.onError(Exception("Image is not open"))
 
+        val new_path = path.substring(0, path.lastIndexOf(".")) + ".png"
+        convertor = Convertor(image, new_path, emitter)
+        convertor?.convert()
+    }.subscribeOn(Schedulers.io())
+        .doOnDispose {
+            convertor?.dispose()
+        }
 }
