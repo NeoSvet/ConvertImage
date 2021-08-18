@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.io.FileInputStream
 
@@ -22,7 +21,7 @@ class ImageModel : ImageMaker {
         image = BitmapFactory.decodeStream(FileInputStream(f), null, options)!!
         isOpened = true
         image
-    }.subscribeOn(Schedulers.io())
+    }
 
     override fun convert() = Completable.create { emitter ->
         if (!isOpened)
@@ -31,8 +30,7 @@ class ImageModel : ImageMaker {
         val new_path = path.substring(0, path.lastIndexOf(".")) + ".png"
         convertor = Convertor(image, new_path, emitter)
         convertor?.convert()
-    }.subscribeOn(Schedulers.io())
-        .doOnDispose {
-            convertor?.dispose()
-        }
+    }.doOnDispose {
+        convertor?.dispose()
+    }
 }

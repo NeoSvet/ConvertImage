@@ -2,6 +2,7 @@ package ru.neosvet.convertimage
 
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import moxy.MvpPresenter
 
 class MainPresenter(
@@ -15,19 +16,27 @@ class MainPresenter(
             viewState.showError(Exception("Image is not found"))
 
         path?.let {
-            model.open(it).observeOn(uiScheduler).subscribe(
-                viewState::showImage,
-                viewState::showError
-            )
+            model
+                .open(it)
+                .observeOn(uiScheduler)
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                    viewState::showImage,
+                    viewState::showError
+                )
         }
     }
 
     fun startConvert() {
         viewState.showProgressDialog()
-        process = model.convert().observeOn(uiScheduler).subscribe(
-            viewState::onComplete,
-            viewState::showError
-        )
+        process = model
+            .convert()
+            .observeOn(uiScheduler)
+            .subscribeOn(Schedulers.io())
+            .subscribe(
+                viewState::onComplete,
+                viewState::showError
+            )
     }
 
     fun stop() {
