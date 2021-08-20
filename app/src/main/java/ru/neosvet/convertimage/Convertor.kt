@@ -3,6 +3,7 @@ package ru.neosvet.convertimage
 import android.graphics.Bitmap
 import io.reactivex.rxjava3.android.MainThreadDisposable
 import io.reactivex.rxjava3.core.CompletableEmitter
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Executors
@@ -27,9 +28,9 @@ class Convertor(
     override fun run() {
         try {
             file = File(path)
-            val fos = FileOutputStream(file)
-            image.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            fos.close()
+            BufferedOutputStream(FileOutputStream(file)).use { fos ->
+                image.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            }
 
             file = null
             converterTask
